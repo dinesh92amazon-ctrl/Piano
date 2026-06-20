@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID WARDEN // AUDIO STUDIO</title>
+    <!-- Google Fonts for futuristic, bold typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-void: #020208;
+            --bg-panel: rgba(6, 10, 26, 0.65);
+            --border-glow: rgba(0, 168, 255, 0.25);
+            --cyan-glow: #00f0ff;
+            --deep-blue: #0044ff;
+            --text-main: #ffffff;
+            --text-dim: #5f7597;
+            --key-white: linear-gradient(180deg, #0d1527 0%, #050814 100%);
+            --key-black: linear-gradient(180deg, #02040a 0%, #000000 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700; /* Strict bold formatting */
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #08122c 0%, var(--bg-void) 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        /* Ambient background grid effect */
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(0, 240, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 240, 255, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* --- HEADER SECTION --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.4rem;
+            color: var(--text-main);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            color: var(--cyan-glow);
+        }
+
+        .master-controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Premium Buttons */
+        .btn {
+            background: linear-gradient(135deg, rgba(0, 68, 255, 0.3) 0%, rgba(0, 240, 255, 0.1) 100%);
+            border: 1px solid var(--cyan-glow);
+            color: var(--text-main);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+        }
+
+        .btn:hover {
+            background: var(--cyan-glow);
+            color: var(--bg-void);
+            box-shadow: 0 0 15px var(--cyan-glow);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-record {
+            border-color: #ff0055;
+            background: rgba(255, 0, 85, 0.1);
+        }
+        .btn-record:hover {
+            background: #ff0055;
+            color: #fff;
+            box-shadow: 0 0 15px #ff0055;
+        }
+        .btn-record.recording {
+            animation: pulse-red 1.5s infinite;
+            background: #ff0055;
+            color: white;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(255, 0, 85, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0); }
+        }
+
+        /* --- REMIX WORKSPACE / STUDIO PANEL --- */
+        .studio-hub {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            flex-grow: 1;
+            margin-bottom: 20px;
+            min-height: 0; /* Important for inner scrolling if needed */
+        }
+
+        .mixer-deck {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            color: var(--cyan-glow);
+            border-bottom: 1px solid var(--border-glow);
+            padding-bottom: 8px;
+            margin-bottom: 5px;
+        }
+
+        .track-strip {
+            background: rgba(2, 4, 10, 0.8);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 150px 1fr auto;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .track-strip.active {
+            border-color: rgba(0, 240, 255, 0.3);
+            background: rgba(0, 68, 255, 0.05);
+        }
+
+        .track-info .track-name {
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+        .track-info .track-status {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .track-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .fader-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+        }
+
+        .fader-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            width: 30px;
+        }
+
+        /* Custom Premium Sliders */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: #08122c;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+            border: 1px solid var(--border-glow);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--cyan-glow);
+            box-shadow: 0 0 8px var(--cyan-glow);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .track-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mini-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-main);
+            padding: 6px 12px;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .mini-btn.active-toggle {
+            background: rgba(0, 240, 255, 0.2);
+            border-color: var(--cyan-glow);
+            color: var(--cyan-glow);
+        }
+
+        /* --- VAULT / EXPORT SIDEBAR --- */
+        .vault-sidebar {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .file-item {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .file-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+        }
+
+        .file-meta .name { color: var(--text-main); }
+        .file-meta .dur { color: var(--text-dim); }
+
+        /* --- PIANO KEYBOARD SECTION --- */
+        .keyboard-wrapper {
+            background: rgba(2, 4, 10, 0.9);
+            border: 2px solid var(--border-glow);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 10px 40px rgba(0,0,0,0.7);
+            position: relative;
+        }
+
+        .piano-keyboard {
+            display: flex;
+            position: relative;
+            height: 240px;
+            width: 100%;
+        }
+
+        .key {
+            position: relative;
+            flex: 1;
+            transition: all 0.1s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 15px;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .white-key {
+            background: var(--key-white);
+            border: 1px solid rgba(0, 168, 255, 0.15);
+            border-top: none;
+            z-index: 1;
+            margin-right: 1px;
+        }
+
+        .white-key:hover {
+            background: linear-gradient(180deg, #121e36 0%, #0a1124 100%);
+        }
+
+        .white-key.active {
+            background: linear-gradient(180deg, #002288 0%, var(--deep-blue) 100%);
+            border-color: var(--cyan-glow);
+            box-shadow: inset 0 -10px 20px rgba(0, 240, 255, 0.4), 0 0 15px rgba(0, 240, 255, 0.3);
+            transform: scaleY(0.99);
+        }
+
+        .black-key {
+            background: var(--key-black);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            height: 140px;
+            z-index: 2;
+            /* Negative margins pull black keys perfectly over white joints */
+            margin-left: -2.2%;
+            margin-right: -2.2%;
+            width: 4.4%;
+        }
+
+        .black-key:hover {
+            background: #090e1a;
+        }
+
+        .black-key.active {
+            background: linear-gradient(180deg, #0044ff 0%, var(--cyan-glow) 100%);
+            border-color: #fff;
+            box-shadow: 0 0 20px var(--cyan-glow);
+            transform: scaleY(0.98);
+        }
+
+        /* Key labels */
+        .key-note {
+            font-size: 0.8rem;
+            color: var(--text-main);
+            pointer-events: none;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .black-key .key-note {
+            color: var(--cyan-glow);
+            font-size: 0.65rem;
+            padding-bottom: 5px;
+        }
+
+        .key-binding {
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            margin-top: 4px;
+            pointer-events: none;
+        }
+        
+        .black-key .key-binding {
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* Utility classes */
+        .empty-notice {
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            text-align: center;
+            margin-top: 40px;
+            border: 1px dashed rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP TELEMETRY BAR -->
+    <header>
+        <div class="logo">
+            <h1>Void Warden <span>// Studio Engine</span></h1>
+        </div>
+        <div class="master-controls">
+            <button class="btn btn-record" id="masterRecordBtn" onclick="toggleMasterRecord()">
+                <span id="recordDot">●</span> <span id="recordText">Capture Layer</span>
+            </button>
+            <button class="btn" onclick="triggerDownload()">Export Master Mix</button>
+        </div>
+    </header>
+
+    <!-- CORE REMIX & MIXER INTERFACE -->
+    <div class="studio-hub">
+        
+        <!-- Live Mixer Deck -->
+        <main class="mixer-deck">
+            <div class="section-title">Multi-Track Remix Matrix</div>
+            
+            <!-- Track 1: Live Synth Engine -->
+            <div class="track-strip active" id="track1">
+                <div class="track-info">
+                    <div class="track-name">01 // Void Synth</div>
+                    <div class="track-status" id="synthStatus">Engine Armed</div>
+                </div>
+                <div class="track-controls">
+                    <div class="fader-wrapper">
+                        <span class="fader-label">Vol</span>
+                        <input type="range" min="0" max="100" value="80" oninput="updateVolume('synth', this.value)">
+                    </div>
+                </div>
+                <div class="track-actions">
+                    <button class="mini-btn active-toggle" onclick="toggleMute('synth', this)">Mute</button>
+                </div>
+            </div>
+
+            <!-- Track 2: Captured Layer Remix Deck -->
+            <div class="track-strip" id="track2">
+                <div class="track-info">
+                    <div class="track-name">02 // Internal Bounce</div>
+                    <div class="track-status" id="bounceStatus">No Data Layered</div>
+                </div>
+                <div class="track-controls">
+                    <div class="fader-wrapper">
+                        <span class="fader-label">Vol</span>
+                        <input type="range" min="0" max="100" value="70" oninput="updateVolume('bounce', this.value)">
+                    </div>
+                </div>
+                <div class="track-actions">
+                    <button class="mini-btn" id="playBounceBtn" onclick="toggleBouncePlayback()" disabled>Play</button>
+                    <button class="mini-btn" onclick="toggleMute('bounce', this)">Mute</button>
+                </div>
+            </div>
+
+            <!-- Track 3: Vocal Module / External Mic Input -->
+            <div class="track-strip" id="track3">
+                <div class="track-info">
+                    <div class="track-name">03 // Vocal Intercept</div>
+                    <div class="track-status" id="micStatus">Microphone Offline</div>
+                </div>
+                <div class="track-controls">
+                    <div class="fader-wrapper">
+                        <span class="fader-label">Vol</span>
+                        <input type="range" min="0" max="100" value="0" id="micFader" oninput="updateVolume('mic', this.value)" disabled>
+                    </div>
+                </div>
+                <div class="track-actions">
+                    <button class="mini-btn" id="micToggleBtn" onclick="initMicrophone()">Initialize Mic</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Dynamic File Vault -->
+        <aside class="vault-sidebar">
+            <div class="section-title">Bounced Masters Vault</div>
+            <div class="file-list" id="vaultList">
+                <div class="empty-notice" id="emptyNotice">No masters generated. Capture a layer or compile an array to export.</div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- SMOOTH SURROUND PIANO CONTROLLER -->
+    <section class="keyboard-wrapper">
+        <div class="piano-keyboard" id="keyboard">
+            <!-- Rendered beautifully via JS with accurate notes and spatial overlapping -->
+        </div>
+    </section>
+
+    <!-- SYSTEM LOGIC ENGINE -->
+    <script>
+        // Setup state configuration
+        const keysConfig = [
+            { note: "C4", frequency: 261.63, key: "A", isBlack: false },
+            { note: "C#4", frequency: 277.18, key: "W", isBlack: true },
+            { note: "D4", frequency: 293.66, key: "S", isBlack: false },
+            { note: "D#4", frequency: 311.13, key: "E", isBlack: true },
+            { note: "E4", frequency: 329.63, key: "D", isBlack: false },
+            { note: "F4", frequency: 349.23, key: "F", isBlack: false },
+            { note: "F#4", frequency: 369.99, key: "T", isBlack: true },
+            { note: "G4", frequency: 392.00, key: "G", isBlack: false },
+            { note: "G#4", frequency: 415.30, key: "Y", isBlack: true },
+            { note: "A4", frequency: 440.00, key: "H", isBlack: false },
+            { note: "A#4", frequency: 466.16, key: "U", isBlack: true },
+            { note: "B4", frequency: 493.88, key: "J", isBlack: false },
+            { note: "C5", frequency: 523.25, key: "K", isBlack: false }
+        ];
+
+        let audioCtx;
+        let masterDestination;
+        let mediaRecorder;
+        let recordedChunks = [];
+        let compiledBounceBlob = null;
+        let bounceAudioElement = new Audio();
+        let bounceSourceNode = null;
+
+        // Mixer Gains
+        let synthGainNode, bounceGainNode, micGainNode;
+        let micStreamNode = null;
+
+        // Track state trackers
+        let isRecording = false;
+        let synthMuted = false;
+        let bounceMuted = false;
+        let bouncePlaying = false;
+
+        // Map tracking for active oscillators to eliminate clicks
+        const activeOscillators = {};
+
+        // Auto-initialize keyboard components UI
+        function createKeyboard() {
+            const container = document.getElementById('keyboard');
+            keysConfig.forEach(k => {
+                const el = document.createElement('div');
+                el.className = `key ${k.isBlack ? 'black-key' : 'white-key'}`;
+                el.dataset.note = k.note;
+                el.innerHTML = `
+                    <div class="key-note">${k.note}</div>
+                    <div class="key-binding">${k.key}</div>
+                `;
+                
+                // Mouse interface triggers
+                el.addEventListener('mousedown', () => startNote(k.note, k.frequency));
+                el.addEventListener('mouseup', () => stopNote(k.note));
+                el.addEventListener('mouseleave', () => stopNote(k.note));
+                
+                // Mobile Touch interface triggers
+                el.addEventListener('touchstart', (e) => { e.preventDefault(); startNote(k.note, k.frequency); });
+                el.addEventListener('touchend', (e) => { e.preventDefault(); stopNote(k.note); });
+
+                container.appendChild(el);
+            });
+        }
+
+        // Initialize Web Audio Components safely on user gesture
+        function initAudioEngine() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Central routing configuration
+            masterDestination = audioCtx.createMediaStreamDestination();
+            
+            synthGainNode = audioCtx.createGain();
+            synthGainNode.gain.setValueAtTime(0.8, audioCtx.currentTime);
+            synthGainNode.connect(audioCtx.destination);
+            synthGainNode.connect(masterDestination);
+
+            bounceGainNode = audioCtx.createGain();
+            bounceGainNode.gain.setValueAtTime(0.7, audioCtx.currentTime);
+            bounceGainNode.connect(audioCtx.destination);
+            bounceGainNode.connect(masterDestination);
+
+            micGainNode = audioCtx.createGain();
+            micGainNode.gain.setValueAtTime(0.0, audioCtx.currentTime); // default zero to block raw background bleed
+            micGainNode.connect(audioCtx.destination);
+            micGainNode.connect(masterDestination);
+        }
+
+        // Play Synth Note (Custom spatial detuned void waveform setup)
+        function startNote(note, frequency) {
+            initAudioEngine();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            if(synthMuted) return;
+
+            if (activeOscillators[note]) return; // Stop overlapping keys trigger
+
+            // Create dual-layer sound array for "Void" character thickness
+            const osc1 = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            osc1.type = 'triangle';
+            osc1.frequency.value = frequency;
+            
+            osc2.type = 'sawtooth';
+            osc2.frequency.value = frequency + 1.5; // Slight detune for spatial dark flavor
+
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.04); // Smooth attack
+
+            osc1.connect(gainNode);
+            osc2.connect(gainNode);
+            gainNode.connect(synthGainNode);
+
+            osc1.start();
+            osc2.start();
+
+            activeOscillators[note] = { osc1, osc2, gainNode };
+
+            // Visual active feedback
+            const keyEl = document.querySelector(`[data-note="${note}"]`);
+            if(keyEl) keyEl.classList.add('active');
+        }
+
+        function stopNote(note) {
+            const nodes = activeOscillators[note];
+            if (!nodes) return;
+
+            const { osc1, osc2, gainNode } = nodes;
+            try {
+                // Smooth Release curve prevents popping artifacts
+                gainNode.gain.setValueAtTime(gainNode.gain.value, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                
+                setTimeout(() => {
+                    osc1.stop();
+                    osc2.stop();
+                    osc1.disconnect();
+                    osc2.disconnect();
+                    gainNode.disconnect();
+                }, 350);
+            } catch(e){}
+
+            delete activeOscillators[note];
+
+            const keyEl = document.querySelector(`[data-note="${note}"]`);
+            if(keyEl) keyEl.classList.remove('active');
+        }
+
+        // Volume mixing router matrix
+        function updateVolume(track, val) {
+            initAudioEngine();
+            const targetGain = val / 100;
+            if(track === 'synth') synthGainNode.gain.setValueAtTime(targetGain, audioCtx.currentTime);
+            if(track === 'bounce') bounceGainNode.gain.setValueAtTime(targetGain, audioCtx.currentTime);
+            if(track === 'mic') micGainNode.gain.setValueAtTime(targetGain, audioCtx.currentTime);
+        }
+
+        // Mute tracking toggles
+        function toggleMute(track, btn) {
+            if(track === 'synth') {
+                synthMuted = !synthMuted;
+                btn.classList.toggle('active-toggle', !synthMuted);
+                document.getElementById('synthStatus').innerText = synthMuted ? 'Muted' : 'Engine Armed';
+            }
+            if(track === 'bounce') {
+                bounceMuted = !bounceMuted;
+                btn.classList.toggle('active-toggle', bounceMuted);
+                if(bounceGainNode) bounceGainNode.gain.setValueAtTime(bounceMuted ? 0 : 0.7, audioCtx.currentTime);
+            }
+        }
+
+        // Initialize mic system layer
+        async function initMicrophone() {
+            initAudioEngine();
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                micStreamNode = audioCtx.createMediaStreamSource(stream);
+                micStreamNode.connect(micGainNode);
+                
+                document.getElementById('micStatus').innerText = 'Intercepting Audio';
+                document.getElementById('micFader').disabled = false;
+                document.getElementById('micFader').value = 60;
+                micGainNode.gain.setValueAtTime(0.6, audioCtx.currentTime);
+                
+                const mBtn = document.getElementById('micToggleBtn');
+                mBtn.innerText = 'Mic Active';
+                mBtn.classList.add('active-toggle');
+                mBtn.disabled = true;
+            } catch (err) {
+                alert('Microphone deployment failed. Verify system permissions.');
+                console.error(err);
+            }
+        }
+
+        // Capture recording sequences internally
+        function toggleMasterRecord() {
+            initAudioEngine();
+            if (!isRecording) {
+                // Initialize clean data chunks state
+                recordedChunks = [];
+                mediaRecorder = new MediaRecorder(masterDestination.stream);
+                
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) recordedChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    compiledBounceBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+                    const audioUrl = URL.createObjectURL(compiledBounceBlob);
+                    
+                    // Route to Track 02 Remix Layer internally
+                    bounceAudioElement.src = audioUrl;
+                    
+                    // Activate UI controls for bounce remixing
+                    document.getElementById('track2').classList.add('active');
+                    document.getElementById('bounceStatus').innerText = 'Data Array Compiled';
+                    document.getElementById('playBounceBtn').disabled = false;
+                    
+                    // Send to global vault list UI
+                    addToVault(compiledBounceBlob);
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                document.getElementById('recordText').innerText = 'Halting Array...';
+                document.getElementById('masterRecordBtn').classList.add('recording');
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                document.getElementById('recordText').innerText = 'Capture Layer';
+                document.getElementById('masterRecordBtn').classList.remove('recording');
+            }
+        }
+
+        // Play/Pause internal layer bounce 
+        function toggleBouncePlayback() {
+            if (!compiledBounceBlob) return;
+
+            const pBtn = document.getElementById('playBounceBtn');
+            if (!bouncePlaying) {
+                // Setup media element source route inside context only on initialization or reload
+                if (!bounceSourceNode) {
+                    bounceSourceNode = audioCtx.createMediaElementSource(bounceAudioElement);
+                    bounceSourceNode.connect(bounceGainNode);
+                }
+                bounceAudioElement.play();
+                bouncePlaying = true;
+                pBtn.innerText = 'Pause';
+                pBtn.classList.add('active-toggle');
+            } else {
+                bounceAudioElement.pause();
+                bouncePlaying = false;
+                pBtn.innerText = 'Play';
+                pBtn.classList.remove('active-toggle');
+            }
+        }
+
+        // Monitor if playback tracking inside element loops or stops naturally
+        bounceAudioElement.onended = () => {
+            bouncePlaying = false;
+            const pBtn = document.getElementById('playBounceBtn');
+            if(pBtn) {
+                pBtn.innerText = 'Play';
+                pBtn.classList.remove('active-toggle');
+            }
+        };
+
+        // File generation processing inside vault array UI
+        function addToVault(blob) {
+            document.getElementById('emptyNotice').style.display = 'none';
+            const vault = document.getElementById('vaultList');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const item = document.createElement('div');
+            item.className = 'file-item';
+            item.innerHTML = `
+                <div class="file-meta">
+                    <span class="name">VW_ARRAY_${vault.children.length + 1}.WEBM</span>
+                    <span class="dur">${timestamp}</span>
+                </div>
+                <button class="mini-btn" style="border-color: var(--cyan-glow); width:100%" onclick="downloadDirectBlob('${URL.createObjectURL(blob)}', 'VW_ARRAY_${vault.children.length + 1}.webm')">Download Track</button>
+            `;
+            vault.insertBefore(item, vault.firstChild);
+        }
+
+        function downloadDirectBlob(url, filename) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+        }
+
+        function triggerDownload() {
+            if (!compiledBounceBlob) {
+                alert("The compiler matrix requires data. Record some music on the piano first!");
+                return;
+            }
+            downloadDirectBlob(URL.createObjectURL(compiledBounceBlob), `VOID_WARDEN_MASTER_MIX.webm`);
+        }
+
+        // Desktop QWERTY mapping matrix
+        const keyboardMap = {};
+        keysConfig.forEach(k => { keyboardMap[k.key.toLowerCase()] = k; });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.repeat) return;
+            const keyConfig = keyboardMap[e.key.toLowerCase()];
+            if (keyConfig) {
+                startNote(keyConfig.note, keyConfig.frequency);
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const keyConfig = keyboardMap[e.key.toLowerCase()];
+            if (keyConfig) {
+                stopNote(keyConfig.note);
+            }
+        });
+
+        // Instantiate visual frame initialization components
+        createKeyboard();
+    </script>
+</body>
+</html>
