@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JEE Foundation Ecosystem - Zero to IITian</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        :root {
+            --bg-dark: #0b0f19;
+            --panel-dark: #131c2e;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-emerald: #10b981;
+            --text-main: #f1f5f9;
+            --border-color: #1e293b;
+        }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        .math-block {
+            font-family: 'Courier New', Courier, monospace;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid var(--accent-blue);
+            padding: 8px 12px;
+            margin: 8px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col custom-scrollbar">
+
+    <div id="authOverlay" class="fixed inset-0 bg-[#070a12] z-50 flex items-center justify-center p-4">
+        <div class="bg-[#131c2e] border border-[#22314d] rounded-2xl max-w-md w-full p-8 shadow-2xl text-center transform transition-all">
+            <div class="w-20 h-20 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/20">
+                <span class="text-3xl font-black text-white">🚀</span>
+            </div>
+            <h1 class="text-2xl font-black tracking-tight text-white mb-2">JEE Foundation Core</h1>
+            <p class="text-gray-400 text-sm mb-6">Bridging the brutal gap between Grade 8 NCERT and Advanced IIT Pre-coaching. Everything explained from raw scratch.</p>
+            
+            <div class="text-left mb-5">
+                <label class="block text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">Enter Explorer Profile Name</label>
+                <input type="text" id="usernameInput" value="Future IITian" 
+                    class="w-full bg-[#0b0f19] border border-[#22314d] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 font-medium transition-colors">
+            </div>
+            
+            <button onclick="initializeSession()" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                Initialize Local Learning Deck
+            </button>
+            <p class="text-gray-500 text-[11px] mt-4">All engine variables, micro-notes, and diagnostic quiz metrics are fully safely stored within your browser's LocalStorage.</p>
+        </div>
+    </div>
+
+    <div class="flex flex-1 overflow-hidden h-screen">
+        
+        <aside class="w-64 bg-[#0e1424] border-r border-[#1e293b] flex flex-col justify-between hidden md:flex">
+            <div>
+                <div class="p-6 border-b border-[#1e293b] bg-[#11192e]">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-lg font-bold text-white">⚡</div>
+                        <div>
+                            <h3 id="sidebarProfileName" class="font-bold text-white text-sm truncate">Loading...</h3>
+                            <span class="text-[11px] font-bold text-purple-400 uppercase tracking-wider">Grade 9 Tracker</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <nav class="p-4 space-y-1">
+                    <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-link w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-blue-400 bg-[#17223b]">
+                        <span>📊</span> <span>Master Control Panel</span>
+                    </button>
+                    <button onclick="switchView('lesson-reader')" id="nav-lesson-reader" class="nav-link w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-gray-400 hover:text-white hover:bg-[#131c2e]">
+                        <span>📚</span> <span>Interactive Modules</span>
+                    </button>
+                    <button onclick="switchView('formula-vault')" id="nav-formula-vault" class="nav-link w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-gray-400 hover:text-white hover:bg-[#131c2e]">
+                        <span>📐</span> <span>Zero-to-Hero Formulas</span>
+                    </button>
+                    <button onclick="switchView('mock-engine')" id="nav-mock-engine" class="nav-link w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-gray-400 hover:text-white hover:bg-[#131c2e]">
+                        <span>⚡</span> <span>Diagnostic Quiz Deck</span>
+                    </button>
+                    <button onclick="switchView('ai-copilot')" id="nav-ai-copilot" class="nav-link w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-gray-400 hover:text-white hover:bg-[#131c2e]">
+                        <span>🤖</span> <span>Micro-Basics AI Chat</span>
+                    </button>
+                </nav>
+            </div>
+            
+            <div class="p-4 border-t border-[#1e293b] bg-[#0b0f19]">
+                <div class="text-xs text-gray-400 flex items-center justify-between">
+                    <span>Database Status:</span>
+                    <span class="text-emerald-400 font-bold uppercase tracking-wider text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded">LocalStorage Connected</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-y-auto custom-scrollbar bg-[#0b0f19]">
+            
+            <header class="md:hidden bg-[#0e1424] border-b border-[#1e293b] p-4 flex items-center justify-between sticky top-0 z-40">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-sm">🚀</div>
+                    <span id="mobileHeaderName" class="font-bold text-xs text-white">JEE Core</span>
+                </div>
+                <div class="flex space-x-1">
+                    <button onclick="switchView('dashboard')" class="p-2 text-xs bg-[#17223b] rounded">📊</button>
+                    <button onclick="switchView('lesson-reader')" class="p-2 text-xs bg-[#17223b] rounded">📚</button>
+                    <button onclick="switchView('formula-vault')" class="p-2 text-xs bg-[#17223b] rounded">📐</button>
+                    <button onclick="switchView('mock-engine')" class="p-2 text-xs bg-[#17223b] rounded">⚡</button>
+                    <button onclick="switchView('ai-copilot')" class="p-2 text-xs bg-[#17223b] rounded">🤖</button>
+                </div>
+            </header>
+
+            <div class="p-4 md:p-8 max-w-6xl w-full mx-auto space-y-8 flex-1">
+                
+                <section id="view-dashboard" class="app-view space-y-6">
+                    <div class="bg-gradient-to-r from-[#16223f] to-[#11192e] rounded-2xl p-6 md:p-8 border border-[#233354] shadow-xl relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h2 class="text-2xl md:text-3xl font-black text-white tracking-tight">Welcome to your JEE Flight Deck, <span id="dashGreetingName" class="text-blue-400">IITian</span>!</h2>
+                            <p class="text-gray-400 mt-2 text-sm max-w-2xl">Your previous school skipped the building blocks. This platform maps out exactly how to build structural intuition for Physics, Mathematics, and Chemical dynamics from raw zero.</p>
+                        </div>
+                        <div class="absolute right-0 bottom-0 top-0 w-1/3 bg-gradient-to-l from-blue-600/5 to-transparent pointer-events-none"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-[#131c2e] border border-[#1e293b] rounded-2xl p-6 flex flex-col justify-between shadow-md">
+                            <div>
+                                <div class="flex justify-between items-start mb-4">
+                                    <span class="text-xs font-black tracking-widest text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full uppercase">Pure & Applied Mathematics</span>
+                                    <span class="text-2xl">📐</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-white">Basic Mathematics Framework</h3>
+                                <p class="text-xs text-gray-400 mt-1">Calculus, Functions, Logarithms, Advanced Trig identities.</p>
+                            </div>
+                            <div class="mt-6">
+                                <div class="flex justify-between text-xs font-bold text-gray-400 mb-1.5">
+                                    <span>Subject Mastery Matrix</span>
+                                    <span id="mathProgressPercent">0%</span>
+                                </div>
+                                <div class="w-full bg-[#0b0f19] h-2.5 rounded-full overflow-hidden border border-[#1e293b]">
+                                    <div id="mathProgressBar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-[#131c2e] border border-[#1e293b] rounded-2xl p-6 flex flex-col justify-between shadow-md">
+                            <div>
+                                <div class="flex justify-between items-start mb-4">
+                                    <span class="text-xs font-black tracking-widest text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full uppercase">Classical Mechanics</span>
+                                    <span class="text-2xl">🌌</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-white">Foundation Physics Engine</h3>
+                                <p class="text-xs text-gray-400 mt-1">Vectors, 1D/2D Kinematics, Component Resolution mechanics.</p>
+                            </div>
+                            <div class="mt-6">
+                                <div class="flex justify-between text-xs font-bold text-gray-400 mb-1.5">
+                                    <span>Subject Mastery Matrix</span>
+                                    <span id="physicsProgressPercent">0%</span>
+                                </div>
+                                <div class="w-full bg-[#0b0f19] h-2.5 rounded-full overflow-hidden border border-[#1e293b]">
+                                    <div id="physicsProgressBar" class="bg-gradient-to-r from-blue-500 to-cyan-500 h-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-[#131c2e] border border-[#1e293b] rounded-2xl p-6 flex flex-col justify-between shadow-md">
+                            <div>
+                                <div class="flex justify-between items-start mb-4">
+                                    <span class="text-xs font-black tracking-widest text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full uppercase">Physical Chemistry</span>
+                                    <span class="text-2xl">🧪</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-white">Physical & Structural Chem</h3>
+                                <p class="text-xs text-gray-400 mt-1">Atomic configuration quantum mechanics, Electrochemistry rules.</p>
+                            </div>
+                            <div class="mt-6">
+                                <div class="flex justify-between text-xs font-bold text-gray-400 mb-1.5">
+                                    <span>Subject Mastery Matrix</span>
+                                    <span id="chemProgressPercent">0%</span>
+                                </div>
+                                <div class="w-full bg-[#0b0f19] h-2.5 rounded-full overflow-hidden border border-[#1e293b]">
+                                    <div id="chemProgressBar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#131c2e] border border-[#1e293b] rounded-2xl p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="text-lg font-black text-white">Linear Curriculum Progression Framework</h3>
+                                <p class="text-xs text-gray-400">Toggle learning depth metrics instantly to adjust global tracking values.</p>
+                            </div>
+                            <div class="text-xs font-bold bg-[#0b0f19] px-3 py-1.5 border border-[#1e293b] rounded-lg text-gray-400">
+                                Total Units: <span id="totalUnitsCount" class="text-white">0</span>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="border-b border-[#1e293b] text-gray-400 font-bold uppercase tracking-wider bg-[#0b0f19]">
+                                        <th class="p-4">Subject</th>
+                                        <th class="p-4">Chapter Block Target</th>
+                                        <th class="p-4">NCERT to JEE Structural Status Mapping</th>
+                                        <th class="p-4 text-right">Interactive Action Hub</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboardTableBody" class="divide-y divide-[#1e293b]/50">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="view-lesson-reader" class="app-view space-y-6 hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                        
+                        <div class="lg:col-span-1 bg-[#131c2e] border border-[#1e293b] rounded-2xl p-4 h-fit space-y-3">
+                            <h4 class="text-xs font-black tracking-widest text-gray-400 uppercase p-2 border-b border-[#1e293b]">Unit Core Sub-Index</h4>
+                            <div id="lessonSideList" class="space-y-1 max-h-[400px] overflow-y-auto custom-scrollbar">
+                                </div>
+                        </div>
+
+                        <div class="lg:col-span-3 flex flex-col space-y-6">
+                            <div class="bg-[#131c2e] border border-[#1e293b] rounded-2xl p-6 md:p-8" id="lessonReaderStage">
+                                <p class="text-gray-400">Select an instructional roadmap chapter module from the adjacent panel layout to initialize your baseline zero-to-hero tutoring matrix text components.</p>
+                            </div>
+
+                            <div id="notesEngineBox" class="bg-[#131c2e] border border-[#1e293b] rounded-2xl p-6 hidden">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-sm">📝</span>
+                                        <h4 class="text-sm font-bold text-white">Personal Chapter Synthesis Notes</h4>
+                                    </div>
+                                    <span class="text-[10px] uppercase font-bold text-emerald-400 tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded">Auto-saving to Local Engine</span>
+                                </div>
+                                <textarea id="chapterNotesArea" oninput="saveActiveNotes()" placeholder="Type definitions, core personal rules or specific confusing points your school instructor stated here. This field persists independently per module selected..." 
+                                    class="w-full h-32 bg-[#0b0f19] border border-[#1e293b] rounded-xl p-4 text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all custom-scrollbar"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="view-formula-vault" class="app-view space-y-6 hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-white tracking-tight">Zero-to-Hero Formula Blueprint Vault</h2>
+                            <p class="text-xs text-gray-400 mt-0.5">The structural mathematics rules, components and chemical equations your homework modules assume you have fully memorized.</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="filterFormulas('all')" class="formula-tab-btn px-3 py-1.5 bg-blue-600 rounded-lg text-xs font-bold text-white">All Identity Metrics</button>
+                            <button onclick="filterFormulas('math')" class="formula-tab-btn px-3 py-1.5 bg-[#131c2e] border border-[#1e293b] rounded-lg text-xs font-bold text-gray-400 hover:text-white">Mathematics</button>
+                            <button onclick="filterFormulas('physics')" class="formula-tab-btn px-3 py-1.5 bg-[#131c2e] border border-[#1e293b] rounded-lg text-xs font-bold text-gray-400 hover:text-white">Physics</button>
+                            <button onclick="filterFormulas('chem')" class="formula-tab-btn px-3 py-1.5 bg-[#131c2e] border border-[#1e293b] rounded-lg text-xs font-bold text-gray-400 hover:text-white">Chemistry</button>
+                        </div>
+                    </div>
+
+                    <div id="formulaCardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        </div>
+                </section>
+
+                <section id="view-mock-engine" class="app-view space-y-6 hidden">
+                    <div class="bg-[#131c2e] border border-[#1e293b] rounded-2xl p-6">
+                        <h2 class="text-xl font-black text-white mb-2">Micro-Concept Analytical Diagnostic Deck</h2>
+                        <p class="text-xs text-gray-400 mb-4">Select an active testing chapter. Every quiz validates whether you have understood the conceptual intuition behind formulas or are just guessing blindly.</p>
+                        
+                        <div class="flex items-center space-x-3 mb-6">
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Challenge Vector:</label>
+                            <select id="quizChapterSelect" onchange="initializeQuizState()" class="bg-[#0b0f19] border border-[#1e293b] text-xs font-medium text-white px-3 py-2 rounded-xl focus:outline-none focus:border-blue-500">
+                                </select>
+                        </div>
+
+                        <hr class="border-[#1e293b] my-6">
+
+                        <div id="quizWorkspaceArea" class="space-y-6">
+                            </div>
+                    </div>
+                </section>
+
+                <section id="view-ai-copilot" class="app-view space-y-6 hidden">
+                    <div class="bg-[#131c2e] border border-[#1e293b] rounded-2xl p-6 flex flex-col h-[550px] shadow-xl">
+                        <div class="flex items-center justify-between pb-4 border-b border-[#1e293b]">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-purple-600/20 text-purple-400 border border-purple-500/30 rounded-xl flex items-center justify-center text-lg">🤖</div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-white">Micro-Basics Adaptive Foundation Engine</h3>
+                                    <p class="text-[10px] text-gray-400">Offline Fallback Engine Enabled / Base44 Online Bridge Mode</p>
+                                </div>
+                            </div>
+                            <button onclick="clearChatHistory()" class="text-[10px] uppercase font-bold text-gray-400 tracking-wider bg-[#0b0f19] border border-[#1e293b] px-3 py-1.5 rounded-lg hover:text-white transition-colors">Clear Stream Logs</button>
+                        </div>
+
+                        <div id="chatMessageLog" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar text-xs">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-7 h-7 rounded-lg bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+                                <div class="bg-[#1e293b] border border-[#334155] rounded-xl rounded-tl-none p-3.5 max-w-[85%] text-gray-200 space-y-2">
+                                    <p>Welcome to the Foundation Help Matrix! I know school lectures are moving at supersonic speeds right now. If a specific concept feels like a total foreign language, drop it here.</p>
+                                    <p class="text-[11px] text-purple-400 font-bold bg-purple-500/5 p-2 rounded border border-purple-500/10">💡 Try typing: "Explain vector dot product using basic arithmetic" or "What is log base 10 actually calculating?"</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-[#1e293b] flex items-center space-x-2">
+                            <input type="text" id="aiUserPayloadInput" onkeypress="if(event.key === 'Enter') executeAiQuery()" placeholder="Type deep foundation query (e.g., 'Break down differentiation like I am in Grade 8')..." 
+                                class="flex-1 bg-[#0b0f19] border border-[#1e293b] rounded-xl px-4 py-3 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-all">
+                            <button onclick="executeAiQuery()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-5 py-3 rounded-xl transition-all shadow-md shadow-purple-600/10">Dispatch</button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // CORE CURRICULUM ARCHITECTURE KNOWLEDGE BASE DATA ENGINES
+        const chapterDatabase = [
+            // MATHEMATICS SUITE
+            {
+                id: "m_algebra",
+                subject: "math",
+                title: "Advanced Polynomial Formulations & Logs",
+                difficulty: "Foundation Core",
+                badgeClass: "bg-purple-500/10 text-purple-400 border border-purple-500/20",
+                intro: "Grade 8 taught you basic scaling like (a+b)². JEE demands manipulating roots, fractional components, and operating logarithms on numbers that scale exponentially.",
+                content: `
+                    <h3 class="text-base font-bold text-white mb-3">1. The Missing Link: Moving Beyond Simple Factoring</h3>
+                    <p class="text-sm text-gray-300 mb-4">In elementary NCERT tracks, you worked with simple groupings. In competitive tracking math modules, polynomials are treated as functional maps. Consider the quadratic expansion system:</p>
+                    <div class="math-block text-blue-400 font-mono text-sm my-3">ax² + bx + c = 0</div>
+                    <p class="text-sm text-gray-300 mb-4">If you cannot split the middle term natively, you deploy the absolute root equation tracker formulation directly:</p>
+                    <div class="math-block text-blue-400 font-mono text-sm my-3">x = [ -b ± √(b² - 4ac) ] / (2a)</div>
+                    <p class="text-sm text-gray-300 mb-4">The core component inside the radical root symbol <code class="text-purple-400 bg-black/40 px-1 rounded">D = b² - 4ac</code> is named the <b>Discriminant</b>. It acts as an absolute structural signpost. If D is negative, the graph never cuts your flat x-axis scale—meaning it possesses imaginary complex solutions.</p>
+                    
+                    <h3 class="text-base font-bold text-white mt-6 mb-3">2. What on Earth is a Logarithm (log)?</h3>
+                    <p class="text-sm text-gray-300 mb-4">Your current homework likely scales expressions using statements like <code class="text-purple-400 bg-black/40 px-1 rounded">log_b(x)</code>. Do not panic! A log asks one question: <b>"To what power must I elevate the baseline number to calculate the target output?"</b></p>
+                    <div class="math-block text-blue-400 font-mono text-sm my-3">If 2³ = 8, then log₂(8) = 3</div>
+                    <p class="text-sm text-gray-300 mb-4">The foundational identities required to survive standard advanced coaching worksheets include:</p>
+                    <ul class="list-disc pl-5 text-sm text-gray-300 space-y-2">
+                        <li><span class="text-purple-400 font-bold">Product Rule:</span> log(m × n) = log(m) + log(n)</li>
+                        <li><span class="text-purple-400 font-bold">Quotient Rule:</span> log(m / n) = log(m) - log(n)</li>
+                        <li><span class="text-purple-400 font-bold">Power Rule:</span> log(mᵏ) = k × log(m)</li>
+                    </ul>
+                `
+            },
+            {
+                id: "m_calculus",
+                subject: "math",
+                title: "Calculus Matrix: Differentiation & Integration Basics",
+                difficulty: "Coaching Bridge Core",
+                badgeClass: "bg-purple-500/10 text-purple-400 border border-purple-500/20",
+                intro: "Your new physics teacher is instantly writing down arrows and symbols like dx/dt on day one. Let's unpack exactly what this rate calculation dynamic tracks.",
+                content: `
+                    <h3 class="text-base font-bold text-white mb-3">1. Intuition of Differentiation (The Ultimate Slope Rule)</h3>
+                    <p class="text-sm text-gray-300 mb-4">In middle school, you learned slope as rise divided by run for a uniform flat straight vector line: <code class="text-blue-400 bg-black/40 px-1 rounded">m = (y₂ - y₁) / (x₂ - x₁)</code>. But what happens if the tracking curve is bending dynamically, like a rocket blast pattern?</p>
+                    <p class="text-sm text-gray-300 mb-4">Differentiation zooms in with infinite scaling power to evaluate the slope at a single precise instant. We symbolize this tiny localized window slice using notation maps:</p>
+                    <div class="math-block text-blue-400 font-mono text-sm my-3">dy / dx = (Infinitesimally small change in y) / (Infinitesimally small change in x)</div>
+                    <p class="text-sm text-gray-300 mb-4">The core algebraic engine power law rule you must memorize immediately to pass basic operational physics components is:</p>
+                    <div class="math-block text-purple-400 font-mono text-sm my-3">If y = xⁿ, then dy/dx = n · xⁿ⁻¹</div>
+                    <p class="text-sm text-gray-300 mb-4"><i>Example Execution:</i> If position updates as $x^4$, its instantaneous rate formula is $4x^3$.</p>
+                    
+                    <h3 class="text-base font-bold text-white mt-6 mb-3">2. Integration: The Reverse Accumulation Machine</h3>
+                    <p class="text-sm text-gray-300 mb-4">If differentiation cuts an expression into infinite small lines, <b>Integration</b> aggregates those tiny elements back together to measure total net surface spatial volume underneath curved functions.</p>
+                    <div class="math-block text-blue-400 font-mono text-sm my-3">∫ xⁿ dx = [ xⁿ⁺¹ / (n + 1) ] + C</div>
+                    <p class="text-sm text-gray-300 mb-4">The arbitrary placeholder component variable <code class="text-purple-400 bg-black/40 px-1 rounded">+ C</code> is mandatory because differentiating a constant reduces its functional signature to absolute absolute zero value.</p>
+                `
+            },
+            // PHYSICS SUITE
+            {
+                id: "p_vectors",
+                subject: "physics",
+                title: "Vector Mechanics & Direction Vectors",
+                difficulty: "Prerequisite Absolute",
+                badgeClass: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
+                intro: "In standard NCERT tracks, measurements are straightforward addition tasks. In JEE, if you pull an object right and lift it upwards simultaneously, the tracking values alter dynamically via geometry.",
+                content: `
+                    <h3 class="text-base font-bold text-white mb-3">1. Scalars vs. Vectors (The Spatial Mapping Gap)</h3>
+                    <p class="text-sm text-gray-300 mb-4">A scalar tracking index has only raw volumetric size (Mass, Temperature, Energy). A <b>Vector</b> requires an absolute directional point coordinate vector mapping rule (Force, Velocity, Acceleration).</p>
+                    <p class="text-sm text-gray-300 mb-4">You cannot combine vector values linearly like basic currency tracking loops. If two separate component forces of magnitude 3 Newtons and 4 Newtons operate perpendicularly, the resulting net vector magnitude calculation must pull directly from right-triangle mechanics models:</p>
+                    <div class="math-block text-blue-400 font-mono text-sm my-3">R = √(A² + B² + 2AB cosθ)</div>
+                    
+                    <h3 class="text-base font-bold text-white mt-6 mb-3">2. Splitting a Vector into Components (Resolving Vectors)</h3>
+                    <p class="text-sm text-gray-300 mb-4">Your coaching mechanics modules rely completely on breaking single complex angled vectors down into clean horizontal and vertical tracks using fundamental trigonometry metrics:</p>
+                    <ul class="list-disc pl-5 text-sm text-gray-300 space-y-2">
+                        <li><span class="text-blue-400 font-bold">Horizontal Component (Along x):</span> A_x = A · cos(θ)</li>
+                        <li><span class="text-blue-400 font-bold">Vertical Component (Along y):</span> A_y = A · sin(θ)</li>
+                    </ul>
+                    <p class="text-sm text-gray-300 mb-4">This allows you to analyze complex tracking paths by evaluating uniform, isolated horizontal inputs separate from vertical acceleration tracks.</p>
+                `
+            },
+            {
+                id: "p_kinematics",
+                subject: "physics",
+                title: "Kinematics: Advanced Rest & Motion Analysis",
+                difficulty: "Coaching Bridge Core",
+                badgeClass: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
+                intro: "NCERT covers basic rate structures ($s = vt$). JEE upgrades this matrix to calculus-driven rates, tracking vectors across variables that change dynamically.",
+                content: `
+                    <h3 class="text-base font-bold text-white mb-3">1. Navigating Calculus-Driven Motion Profiles</h3>
+                    <p class="text-sm text-gray-300 mb-4">When a coaching manual references velocity, it is no longer tracking basic macroscopic journey parameters. It refers to the instantaneous derivative boundary function of positioning metrics:</p>
+                    <div class="math-block text-blue-400 font-mono text-sm my-3">v = dx / dt  |  a = dv / dt = d²x / dt²</div>
+                    <p class="text-sm text-gray-300 mb-4">If acceleration is perfectly uniform and fixed, you can bypass calculus frameworks and safely run standard constant acceleration equations:</p>
+                    <ul class="list-disc pl-5 text-sm text-gray-300 space-y-2">
+                        <li>v = u + at</li>
+                        <li>s = ut + ½at²</li>
+                        <li>v² = u² + 2as</li>
+                    </ul>
+                    <p class="text-sm text-gray-300 mb-4"><b>The Critical Trapping Framework:</b> If your homework problem features acceleration tracking expressions dependent on time, such as <code class="text-blue-400 bg-black/40 px-1 rounded">a = 3t</code>, the algebraic equations above are structurally invalid. You must apply integration techniques across variable boundaries to resolve positioning metrics.</p>
+                `
+            },
+            // CHEMISTRY SUITE
+            {
+                id: "c_atomic",
+                subject: "chem",
+                title: "Atomic Configuration & Quantum Mechanics",
+                difficulty: "Structural Chemistry Core",
+                badgeClass: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+                intro: "Grade 8 presented simple concentric Bohr circular tracks. Competitive physical chemistry steps past those models into probability distribution waves.",
+                content: `
+                    <h3 class="text-base font-bold text-white mb-3">1. Breaking the Bohr Planetary Illusion</h3>
+                    <p class="text-sm text-gray-300 mb-4">In basic NCERT courses, electrons orbit like solid planets in neat rings labeled (2, 8, 8). In reality, quantum mechanical tracking frameworks show that electrons act as wave-particle hybrids.</p>
+                    <p class="text-sm text-gray-300 mb-4">Instead of orbits, we use the term <b>Orbitals</b>—spatial zones where the probability of encountering an electron is statistically high. These configurations map to specific quantum numbers across distinct pathways:</p>
+                    <div class="math-block text-emerald-400 font-mono text-sm my-3">Subshells: s (holds 2), p (holds 6), d (holds 10), f (holds 14)</div>
+                    
+                    <h3 class="text-base font-bold text-white mt-6 mb-3">2. Electron Fill Directives (Aufbau Principle)</h3>
+                    <p class="text-sm text-gray-300 mb-4">Electrons naturally settle into low-energy orbitals first. The fill sequence looks confusing because energy bands overlap at scale:</p>
+                    <div class="math-block text-blue-400 font-mono text-sm my-3">1s → 2s → 2p → 3s → 3p → 4s → 3d</div>
+                    <p class="text-sm text-gray-300 mb-4">Notice that the <code class="text-emerald-400 bg-black/40 px-1 rounded">4s</code> shell fills before <code class="text-emerald-400 bg-black/40 px-1 rounded">3d</code> because its primary quantum configuration drops its baseline entry energy slightly lower.</p>
+                `
+            }
+        ];
+
+        // MASTER THEORETICAL FORMULA BANK ARCHITECTURE
+        const formulaBank = [
+            { subject: "math", title: "Algebraic Factorization Frameworks", formula: "(a ± b)³ = a³ ± b³ ± 3ab(a ± b)", notes: "Essential for breaking down cubic polynomial functions instantly in coordinate geometry tasks." },
+            { subject: "math", title: "Logarithmic Change of Base Rule", formula: "log_b(a) = log_c(a) / log_c(b)", notes: "Crucial for simplifying calculus expressions before applying differentiation or integration operations." },
+            { subject: "math", title: "Trigonometric Core Transformation Identities", formula: "sin(2θ) = 2sinθcosθ  |  cos(2θ) = cos²θ - sin²θ", notes: "Used constantly in physics to optimize trajectory profiles in projectile worksheets." },
+            { subject: "physics", title: "The Vector Dot Product Matrix", formula: "A · B = |A||B| cos(θ) = A_x B_x + A_y B_y", notes: "A scalar calculation technique used to evaluate mechanical work outputs when forces cross angled boundaries." },
+            { subject: "physics", title: "Vector Cross Product Magnitude Rule", formula: "|A × B| = |A||B| sin(θ)", notes: "Calculates spatial orientation outputs; fundamental for tracking rotatonal torque dynamics." },
+            { subject: "chem", title: "Bohr Electronic Track Wave Energies", formula: "E_n = -13.6 · (Z² / n²) eV", notes: "Measures the precise electrical energy values needed to lift atomic electrons between quantum orbital positions." }
+        ];
+
+        // CONCEPTUAL ANALYTICAL QUIZ QUESTION BANK ENGINE
+        const quizDatabase = {
+            "m_algebra": [
+                { q: "If log₃(x) = 4, evaluate the tracking numeric position magnitude value of x.", a: ["12", "64", "81", "7"], c: 2, e: "A logarithm directly checks scaling exponents: 3 raised to the power of 4 equals 81 ($3 \times 3 \times 3 \times 3 = 81$)." },
+                { q: "Evaluate the discriminant matrix behavior state for: 2x² - 4x + 5 = 0.", a: ["Real & Equal", "Real & Distinct", "Complex/Imaginary", "Zero Matrix State"], c: 2, e: "$D = b^2 - 4ac$. Plugging in values gives: $(-4)^2 - 4(2)(5) = 16 - 40 = -24$. A negative discriminant means the function has complex/imaginary roots." }
+            ],
+            "m_calculus": [
+                { q: "Differentiate the dynamic tracking position function model: y = 3x² + 5x.", a: ["6x + 5", "3x + 5", "6x² + 5", "x³ + 5x"], c: 0, e: "Apply the power rule step-by-step: the derivative of $3x^2$ is $3 \times 2x^{2-1} = 6x$, and the derivative of $5x^1$ is $5 \times 1 = 5$." }
+            ],
+            "p_vectors": [
+                { q: "A force vector of 6N acts North, and a force vector of 8N acts East. What is the net resultant force magnitude?", a: "14 Newtons", b: "2 Newtons", c: "10 Newtons", d: "48 Newtons", options: ["14 Newtons", "2 Newtons", "10 Newtons", "48 Newtons"], c: 2, e: "Since North and East are exactly perpendicular ($90^\circ$), use the Pythagorean relationship: $\sqrt{6^2 + 8^2} = \sqrt{36 + 64} = \sqrt{100} = 10\text{ Newtons}$." }
+            ]
+        };
+
+        // OFFLINE AUTOMATED DICTIONARY FOR AI RESPONSE SIMULATIONS
+        const fallbackAiDictionary = {
+            "differentiation": "<b>AI Analytics Core:</b> Differentiation measures instantaneous rate of change. Think of it as a super-microscope tracking an object's velocity over a single millisecond slice. Instead of total distance over total time, it tracks the exact slope at any given point.",
+            "integration": "<b>AI Analytics Core:</b> Integration calculates the cumulative space underneath a curve. If your physics graph shows changing force across variable distances, integration adds up those micro-intervals to find the total mechanical work completed.",
+            "vector": "<b>AI Analytics Core:</b> A vector is an arrow that carries both magnitude (how strong it is) and a specific heading direction. In JEE, you can freely slide vectors across coordinate systems as long as you do not alter the angle or length of the arrow.",
+            "log": "<b>AI Analytics Core:</b> Logarithms are the mathematical inverse of exponential scaling. If a bacteria colony scales up by powers of 10, the log value tells you exactly how many structural generations of growth have occurred."
+        };
+
+        // GLOBAL APPLICATION SYSTEM STATE OBJECT
+        let sysState = {
+            user: "Future IITian",
+            progress: {}, // Tracks chapter execution status matrices
+            notes: {}     // Stores localized textbook scratch annotations
+        };
+
+        // SESSION INITIALIZATION ENGINE
+        function initializeSession() {
+            const nameIn = document.getElementById("usernameInput").value.trim();
+            if(!nameIn) return;
+            
+            sysState.user = nameIn;
+            
+            // Sync/Read LocalStorage values safely
+            const localCache = localStorage.getItem("jee_ecosystem_cache_v2");
+            if(localCache) {
+                try {
+                    const parsed = JSON.parse(localCache);
+                    if(parsed.user === nameIn) {
+                        sysState = parsed;
+                    } else {
+                        sysState.user = nameIn;
+                        sysState.progress = {};
+                        sysState.notes = {};
+                    }
+                } catch(e) {
+                    console.error("Local data structure corrupted, resetting profile map layer.");
+                }
+            }
+            
+            // Persist to disk tracking layer
+            saveStateToDisk();
+            
+            // Tear down onboarding layout stage
+            document.getElementById("authOverlay").style.display = "none";
+            
+            // Build visual component metrics
+            renderGlobalDashboard();
+            initializeDropdownSelectors();
+            switchView('dashboard');
+        }
+
+        function saveStateToDisk() {
+            localStorage.setItem("jee_ecosystem_cache_v2", JSON.stringify(sysState));
+        }
+
+        // NAVIGATION VIEW-SWITCHING ENGINE
+        function switchView(targetViewId) {
+            document.querySelectorAll('.app-view').forEach(view => view.classList.add('hidden'));
+            document.getElementById(`view-${targetViewId}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('text-blue-400', 'bg-[#17223b]');
+                link.classList.add('text-gray-400');
+            });
+            
+            const activeNav = document.getElementById(`nav-${targetViewId}`);
+            if(activeNav) {
+                activeNav.classList.remove('text-gray-400');
+                activeNav.classList.add('text-blue-400', 'bg-[#17223b]');
+            }
+
+            // Contextual processing routines on active window initialization
+            if(targetViewId === 'dashboard') renderGlobalDashboard();
+            if(targetViewId === 'lesson-reader') renderLessonSidebarList();
+            if(targetViewId === 'formula-vault') filterFormulas('all');
+        }
+
+        // DASHBOARD COMPUTATION MATRIX ENGINE
+        function renderGlobalDashboard() {
+            document.getElementById("sidebarProfileName").innerText = sysState.user;
+            document.getElementById("dashGreetingName").innerText = sysState.user;
+            
+            // Compute structural advancement parameters
+            let total = chapterDatabase.length;
+            document.getElementById("totalUnitsCount").innerText = total;
+
+            let counts = { math: { total: 0, clear: 0 }, physics: { total: 0, clear: 0 }, chem: { total: 0, clear: 0 } };
+            
+            chapterDatabase.forEach(ch => {
+                counts[ch.subject].total++;
+                let status = sysState.progress[ch.id] || "Not Started";
+                if(status !== "Not Started") {
+                    counts[ch.subject].clear++;
+                }
+            });
+
+            // Update Progress UI components
+            ['math', 'physics', 'chem'].forEach(sub => {
+                let p = counts[sub].total > 0 ? Math.round((counts[sub].clear / counts[sub].total) * 100) : 0;
+                document.getElementById(`${sub}ProgressPercent`).innerText = `${p}%`;
+                document.getElementById(`${sub}ProgressBar`).style.width = `${p}%`;
+            });
+
+            // Build out dashboard table elements cleanly
+            const tbody = document.getElementById("dashboardTableBody");
+            tbody.innerHTML = "";
+
+            chapterDatabase.forEach(ch => {
+                let currentStatus = sysState.progress[ch.id] || "Not Started";
+                
+                let badgeStyle = "bg-gray-500/10 text-gray-400 border border-gray-500/20";
+                if(currentStatus === "Basics Cleared") badgeStyle = "bg-blue-500/10 text-blue-400 border border-blue-500/20";
+                if(currentStatus === "School Level Ready") badgeStyle = "bg-purple-500/10 text-purple-400 border border-purple-500/20";
+                if(currentStatus === "JEE Crack Status") badgeStyle = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-[#131c2e]/40 transition-colors";
+                tr.innerHTML = `
+                    <td class="p-4 font-bold uppercase tracking-wider text-[10px] text-gray-400">${ch.subject}</td>
+                    <td class="p-4">
+                        <div class="font-bold text-white text-xs">${ch.title}</div>
+                        <div class="text-[11px] text-gray-500 truncate max-w-xs">${ch.intro}</div>
+                    </td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${badgeStyle}">${currentStatus}</span>
+                    </td>
+                    <td class="p-4 text-right space-x-1">
+                        <select onchange="updateChapterStatus('${ch.id}', this.value)" class="bg-[#0b0f19] border border-[#1e293b] text-[11px] text-gray-300 rounded px-2 py-1 focus:outline-none">
+                            <option value="Not Started" ${currentStatus==='Not Started'?'selected':''}>Not Started</option>
+                            <option value="Basics Cleared" ${currentStatus==='Basics Cleared'?'selected':''}>Basics Cleared</option>
+                            <option value="School Level Ready" ${currentStatus==='School Level Ready'?'selected':''}>School Ready</option>
+                            <option value="JEE Crack Status" ${currentStatus==='JEE Crack Status'?'selected':''}>JEE Cracked</option>
+                        </select>
+                        <button onclick="launchDirectLesson('${ch.id}')" class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/30 text-[11px] px-2.5 py-1 rounded transition-all">Study</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateChapterStatus(chapterId, newStatus) {
+            sysState.progress[chapterId] = newStatus;
+            saveStateToDisk();
+            renderGlobalDashboard();
+        }
+
+        function launchDirectLesson(chapterId) {
+            switchView('lesson-reader');
+            loadActiveChapterContent(chapterId);
+        }
+
+        // TEXTBOOK CORE READING PLATFORM ENGINE
+        let activeChapterIdGlobal = null;
+
+        function renderLessonSidebarList() {
+            const container = document.getElementById("lessonSideList");
+            container.innerHTML = "";
+            
+            chapterDatabase.forEach(ch => {
+                let status = sysState.progress[ch.id] || "Not Started";
+                let indicatorColor = "bg-gray-600";
+                if(status === "Basics Cleared") indicatorColor = "bg-blue-500";
+                if(status === "School Level Ready") indicatorColor = "bg-purple-500";
+                if(status === "JEE Crack Status") indicatorColor = "bg-emerald-500";
+
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-3 rounded-xl transition-all text-xs flex items-center space-x-3 text-gray-300 hover:bg-[#1c2a47] ${activeChapterIdGlobal === ch.id ? 'bg-[#17223b] border-l-4 border-blue-500 font-bold' : ''}`;
+                btn.onclick = () => loadActiveChapterContent(ch.id);
+                btn.innerHTML = `
+                    <span class="w-2 h-2 rounded-full ${indicatorColor} shrink-0"></span>
+                    <span class="truncate flex-1">${ch.title}</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function loadActiveChapterContent(chapterId) {
+            activeChapterIdGlobal = chapterId;
+            renderLessonSidebarList();
+
+            const ch = chapterDatabase.find(x => x.id === chapterId);
+            const stage = document.getElementById("lessonReaderStage");
+            const notesBox = document.getElementById("notesEngineBox");
+
+            if(!ch) return;
+
+            let status = sysState.progress[ch.id] || "Not Started";
+
+            stage.innerHTML = `
+                <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-[#1e293b] pb-4 mb-6 gap-4">
+                    <div>
+                        <span class="text-[10px] font-black uppercase tracking-widest ${ch.badgeClass} px-2.5 py-0.5 rounded-full">${ch.difficulty}</span>
+                        <h2 class="text-xl font-black text-white mt-1.5">${ch.title}</h2>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-xs text-gray-400 font-medium">Tracking Level:</label>
+                        <select onchange="updateChapterStatus('${ch.id}', this.value); loadActiveChapterContent('${ch.id}');" class="bg-[#0b0f19] border border-[#1e293b] text-xs font-bold text-white px-3 py-1.5 rounded-xl focus:outline-none">
+                            <option value="Not Started" ${status==='Not Started'?'selected':''}>Not Started</option>
+                            <option value="Basics Cleared" ${status==='Basics Cleared'?'selected':''}>Basics Cleared</option>
+                            <option value="School Level Ready" ${status==='School Level Ready'?'selected':''}>School Ready</option>
+                            <option value="JEE Crack Status" ${status==='JEE Crack Status'?'selected':''}>JEE Cracked</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="prose prose-invert max-w-none text-xs leading-relaxed text-gray-300 space-y-4">
+                    <div class="bg-[#0b0f19] border border-[#1e293b] p-4 rounded-xl text-gray-400 italic mb-6">
+                        <b>Core Objective:</b> ${ch.intro}
+                    </div>
+                    ${ch.content}
+                </div>
+            `;
+
+            // Setup personal memory scratch areas
+            notesBox.classList.remove('hidden');
+            document.getElementById("chapterNotesArea").value = sysState.notes[chapterId] || "";
+        }
+
+        function saveActiveNotes() {
+            if(!activeChapterIdGlobal) return;
+            const val = document.getElementById("chapterNotesArea").value;
+            sysState.notes[activeChapterIdGlobal] = val;
+            saveStateToDisk();
+        }
+
+        // FORMULA BANK SEARCH FILTER ENGINE
+        function filterFormulas(category) {
+            // Update active state visual flags
+            document.querySelectorAll('.formula-tab-btn').forEach(btn => {
+                btn.className = "formula-tab-btn px-3 py-1.5 bg-[#131c2e] border border-[#1e293b] rounded-lg text-xs font-bold text-gray-400 hover:text-white";
+            });
+            
+            const grid = document.getElementById("formulaCardsGrid");
+            grid.innerHTML = "";
+
+            const items = category === 'all' ? formulaBank : formulaBank.filter(x => x.subject === category);
+
+            items.forEach(f => {
+                let badgeColor = "text-purple-400 bg-purple-500/10";
+                if(f.subject === 'physics') badgeColor = "text-blue-400 bg-blue-500/10";
+                if(f.subject === 'chem') badgeColor = "text-emerald-400 bg-emerald-500/10";
+
+                const card = document.createElement('div');
+                card.className = "bg-[#131c2e] border border-[#1e293b] p-5 rounded-2xl flex flex-col justify-between shadow-md";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-xs font-bold text-white">${f.title}</h4>
+                            <span class="text-[9px] uppercase font-black tracking-widest px-2 py-0.5 rounded ${badgeColor}">${f.subject}</span>
+                        </div>
+                        <div class="math-block text-blue-400 font-mono text-xs my-3 text-center py-4 bg-black/40 border-l-0 border-b-2 border-blue-500 rounded-lg">
+                            ${f.formula}
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-2 italic bg-[#0b0f19] p-2.5 rounded-xl border border-[#1e293b]/60">
+                        <b>Core Function:</b> ${f.notes}
+                    </p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // TESTING ENGINE AND EVALUATION STRUCTURES
+        function initializeDropdownSelectors() {
+            const select = document.getElementById("quizChapterSelect");
+            select.innerHTML = "";
+            
+            chapterDatabase.forEach(ch => {
+                if(quizDatabase[ch.id]) {
+                    const opt = document.createElement('option');
+                    opt.value = ch.id;
+                    opt.innerText = `[${ch.subject.toUpperCase()}] ${ch.title}`;
+                    select.appendChild(opt);
+                }
+            });
+            initializeQuizState();
+        }
+
+        function initializeQuizState() {
+            const targetChId = document.getElementById("quizChapterSelect").value;
+            const workspace = document.getElementById("quizWorkspaceArea");
+            const questions = quizDatabase[targetChId];
+
+            if(!questions) {
+                workspace.innerHTML = `<p class="text-xs text-gray-500">No active tracking evaluation units exist yet for this selection template.</p>`;
+                return;
+            }
+
+            workspace.innerHTML = "";
+            questions.forEach((q, idx) => {
+                let optionsMarkup = "";
+                q.a.forEach((optionText, optIdx) => {
+                    optionsMarkup += `
+                        <label class="flex items-start space-x-3 p-3 bg-[#0b0f19] border border-[#1e293b] rounded-xl cursor-pointer hover:border-blue-500/50 transition-colors">
+                            <input type="radio" name="q_vector_${idx}" value="${optIdx}" class="mt-0.5 text-blue-600 focus:ring-0 focus:ring-offset-0 bg-transparent border-slate-700">
+                            <span class="text-xs text-gray-300 font-medium">${optionText}</span>
+                        </label>
+                    `;
+                });
+
+                const qCard = document.createElement('div');
+                qCard.className = "bg-[#0b0f19]/40 border border-[#1e293b] p-5 rounded-2xl space-y-3";
+                qCard.innerHTML = `
+                    <div class="text-xs font-bold text-white">Question 0${idx+1}: <span class="font-medium text-gray-300">${q.q}</span></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">${optionsMarkup}</div>
+                    <div id="diagnostic_response_block_${idx}" class="hidden p-3.5 rounded-xl text-[11px] leading-relaxed transition-all"></div>
+                `;
+                workspace.appendChild(qCard);
+            });
+
+            const actionContainer = document.createElement('div');
+            actionContainer.innerHTML = `<button onclick="gradeActiveQuizSequence('${targetChId}')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all shadow-lg">Evaluate Answers</button>`;
+            workspace.appendChild(actionContainer);
+        }
+
+        function gradeActiveQuizSequence(chapterId) {
+            const questions = quizDatabase[chapterId];
+            if(!questions) return;
+
+            questions.forEach((q, idx) => {
+                const selected = document.querySelector(`input[name="q_vector_${idx}"]:checked`);
+                const responseBlock = document.getElementById(`diagnostic_response_block_${idx}`);
+                
+                responseBlock.classList.remove('hidden', 'bg-emerald-500/10', 'text-emerald-400', 'border-emerald-500/20', 'bg-red-500/10', 'text-red-400', 'border-red-500/20');
+
+                if(!selected) {
+                    responseBlock.classList.add('bg-red-500/10', 'text-red-400', 'border', 'border-red-500/20');
+                    responseBlock.innerHTML = `<b>Evaluation Warning:</b> Option skipped. Rule parameters require active responses.<br><br><b>Correct Answer:</b> ${q.a[q.c]}<br><b>Framework Resolution:</b> ${q.e}`;
+                    return;
+                }
+
+                const answeredIdx = parseInt(selected.value);
+                if(answeredIdx === q.c) {
+                    responseBlock.classList.add('bg-emerald-500/10', 'text-emerald-400', 'border', 'border-emerald-500/20');
+                    responseBlock.innerHTML = `<b>✓ Diagnostic Verification Passed:</b> Core concept mastered correctly!<br><br><b>Framework Resolution:</b> ${q.e}`;
+                } else {
+                    responseBlock.classList.add('bg-red-500/10', 'text-red-400', 'border', 'border-red-500/20');
+                    responseBlock.innerHTML = `<b>✗ Core Analytical Fault Detected:</b> Your choice missed the fundamental dependency.<br><br><b>Correct Answer:</b> ${q.a[q.c]}<br><b>Framework Resolution:</b> ${q.e}`;
+                }
+            });
+        }
+
+        // COPILOT LIVE SYSTEM INTELLIGENCE LAYER
+        async function executeAiQuery() {
+            const inputField = document.getElementById("aiUserPayloadInput");
+            const promptRaw = inputField.value.trim();
+            if(!promptRaw) return;
+
+            const chatLog = document.getElementById("chatMessageLog");
+
+            // Render User bubble immediately
+            chatLog.innerHTML += `
+                <div class="flex items-start space-x-3 justify-end">
+                    <div class="bg-blue-600 border border-blue-500 text-white rounded-xl rounded-tr-none p-3.5 max-w-[85%] text-left">
+                        ${promptRaw}
+                    </div>
+                </div>
+            `;
+            inputField.value = "";
+            chatLog.scrollTop = chatLog.scrollHeight;
+
+            // Loading state shell element
+            const loaderId = "ai_loader_" + Date.now();
+            chatLog.innerHTML += `
+                <div class="flex items-start space-x-3" id="${loaderId}">
+                    <div class="w-7 h-7 rounded-lg bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+                    <div class="bg-[#1e293b] border border-[#334155] rounded-xl rounded-tl-none p-3.5 max-w-[85%] text-gray-400 animate-pulse">
+                        Analyzing baseline framework logs...
+                    </div>
+                </div>
+            `;
+            chatLog.scrollTop = chatLog.scrollHeight;
+
+            // Processing delay routine
+            setTimeout(() => {
+                const loader = document.getElementById(loaderId);
+                if(loader) loader.remove();
+
+                let normalized = promptRaw.toLowerCase();
+                let chosenReply = `<b>Adaptive Coach Feedback Engine:</b> I've logged your request regarding structural theory parameters. For this self-contained platform deployment, try typing specific foundation keywords like <b>"differentiation"</b>, <b>"integration"</b>, <b>"vector"</b>, or <b>"log"</b> to extract raw conceptual blueprints instantly!`;
+
+                for (let key in fallbackAiDictionary) {
+                    if(normalized.includes(key)) {
+                        chosenReply = fallbackAiDictionary[key];
+                        break;
+                    }
+                }
+
+                chatLog.innerHTML += `
+                    <div class="flex items-start space-x-3">
+                        <div class="w-7 h-7 rounded-lg bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+                        <div class="bg-[#1e293b] border border-[#334155] rounded-xl rounded-tl-none p-3.5 max-w-[85%] text-gray-200 space-y-2">
+                            <p>${chosenReply}</p>
+                        </div>
+                    </div>
+                `;
+                chatLog.scrollTop = chatLog.scrollHeight;
+            }, 750);
+        }
+
+        function clearChatHistory() {
+            const chatLog = document.getElementById("chatMessageLog");
+            chatLog.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <div class="w-7 h-7 rounded-lg bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+                    <div class="bg-[#1e293b] border border-[#334155] rounded-xl rounded-tl-none p-3.5 max-w-[85%] text-gray-200">
+                        Logs cleared successfully. Ask your micro-basics question to reset the interactive coaching layer.
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
